@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -129,7 +130,12 @@ func main() {
 	})
 
 	fmt.Println("Server jalan di http://localhost:8080")
-	err := http.ListenAndServe(":8080", nil)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+	fmt.Println("Server jalan di port " + port)
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		fmt.Println("Gagal menjalankan server:", err)
 	}
