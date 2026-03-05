@@ -129,7 +129,6 @@ func main() {
 		})
 	})
 
-	fmt.Println("Server jalan di http://localhost:8080")
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
