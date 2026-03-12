@@ -16,17 +16,12 @@ func NewProductRepository(db *sql.DB) *ProductRepository {
 
 // GetAll — ambil semua produk dari database
 func (repo *ProductRepository) GetAll(nameFilter string) ([]models.Product, error) {
-	// Query dasar
-	query := "SELECT id, name, price, stock FROM products"
+	query := "SELECT id, name, price, stock FROM products WHERE deleted_at IS NULL"
 
-	// Siapkan slice untuk argument query
 	args := []interface{}{}
 
-	// Kalau ada filter nama, tambahkan WHERE clause
-	// ILIKE = case-insensitive LIKE (jadi "indom" cocok dengan "Indomie" atau "INDOMIE")
-	// %indom% = mengandung kata "indom" di mana saja dalam nama
 	if nameFilter != "" {
-		query += " WHERE name ILIKE $1"
+		query += " AND name ILIKE $1"
 		args = append(args, "%"+nameFilter+"%")
 	}
 
@@ -58,7 +53,7 @@ func (repo *ProductRepository) Create(product *models.Product) error {
 
 // GetByID — ambil satu produk berdasarkan ID
 func (repo *ProductRepository) GetByID(id int) (*models.Product, error) {
-	query := "SELECT id, name, price, stock FROM products WHERE id = $1"
+	query := "SELECT id, name, price, stock FROM products WHERE id = $1 AND deleted_at IS NULL"
 
 	var p models.Product
 	err := repo.db.QueryRow(query, id).Scan(&p.ID, &p.Name, &p.Price, &p.Stock)
@@ -93,7 +88,8 @@ func (repo *ProductRepository) Update(product *models.Product) error {
 
 // Delete — hapus produk berdasarkan ID
 func (repo *ProductRepository) Delete(id int) error {
-	query := "DELETE FROM products WHERE id = $1"
+	// Bukan hapus sungguhan — tandai deleted_at dengan waktu sekarang
+	query := "UPDATE products SET deleted_at = NOW() WHERE id = $1 AND deleted_at IS NULL"
 	result, err := repo.db.Exec(query, id)
 	if err != nil {
 		return err
