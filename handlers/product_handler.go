@@ -44,7 +44,12 @@ func (h *ProductHandler) HandleProductByID(w http.ResponseWriter, r *http.Reques
 }
 
 func (h *ProductHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	products, err := h.service.GetAll()
+	// Ambil query parameter "name" dari URL
+	// Contoh: /api/produk?name=indom → name = "indom"
+	// Kalau tidak ada query parameter → name = "" (string kosong)
+	name := r.URL.Query().Get("name")
+
+	products, err := h.service.GetAll(name)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

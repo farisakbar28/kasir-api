@@ -25,7 +25,6 @@ func main() {
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	// Baca file .env kalau ada (di local development)
 	if _, err := os.Stat(".env"); err == nil {
 		viper.SetConfigFile(".env")
 		_ = viper.ReadInConfig()
@@ -36,7 +35,7 @@ func main() {
 		DBConn: viper.GetString("DB_CONN"),
 	}
 
-	// ── 2. Koneksi ke database ────────────────────────────
+	// ── 2. Koneksi database ───────────────────────────────
 	db, err := database.InitDB(config.DBConn)
 	if err != nil {
 		log.Fatal("Gagal koneksi ke database:", err)
@@ -44,21 +43,34 @@ func main() {
 	defer db.Close()
 
 	// ── 3. Dependency Injection ───────────────────────────
-	// Rakit semua layer dari bawah ke atas
+
+	// Product
 	productRepo := repositories.NewProductRepository(db)
 	productService := services.NewProductService(productRepo)
 	productHandler := handlers.NewProductHandler(productService)
 
-	// ── 4. Setup routes ───────────────────────────────────
+	// Transaction
+	transactionRepo := repositories.NewTransactionRepository(db)
+	transactionService := services.NewTransactionService(transactionRepo)
+	transactionHandler := handlers.NewTransactionHandler(transactionService)
+
+	// Report
+	reportRepo := repositories.NewReportRepository(db)
+	reportService := services.NewReportService(reportRepo)
+	reportHandler := handlers.NewReportHandler(reportService)
+
+	// ── 4. Routes ─────────────────────────────────────────
 	http.HandleFunc("/api/produk", productHandler.HandleProducts)
 	http.HandleFunc("/api/produk/", productHandler.HandleProductByID)
+	http.HandleFunc("/api/checkout", transactionHandler.HandleCheckout)
+	http.HandleFunc("/api/report/hari-ini", reportHandler.HandleHariIni)
 
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		w.Write([]byte(`{"status":"OK","message":"API Running"}`))
 	})
 
-	// ── 5. Jalankan server ────────────────────────────────
+	// ── 5. Start server ───────────────────────────────────
 	addr := "0.0.0.0:" + config.Port
 	fmt.Println("Server jalan di", addr)
 

@@ -15,9 +15,22 @@ func NewProductRepository(db *sql.DB) *ProductRepository {
 }
 
 // GetAll — ambil semua produk dari database
-func (repo *ProductRepository) GetAll() ([]models.Product, error) {
+func (repo *ProductRepository) GetAll(nameFilter string) ([]models.Product, error) {
+	// Query dasar
 	query := "SELECT id, name, price, stock FROM products"
-	rows, err := repo.db.Query(query)
+
+	// Siapkan slice untuk argument query
+	args := []interface{}{}
+
+	// Kalau ada filter nama, tambahkan WHERE clause
+	// ILIKE = case-insensitive LIKE (jadi "indom" cocok dengan "Indomie" atau "INDOMIE")
+	// %indom% = mengandung kata "indom" di mana saja dalam nama
+	if nameFilter != "" {
+		query += " WHERE name ILIKE $1"
+		args = append(args, "%"+nameFilter+"%")
+	}
+
+	rows, err := repo.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
