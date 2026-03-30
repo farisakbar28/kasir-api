@@ -43,6 +43,15 @@ func (h *ProductHandler) HandleProductByID(w http.ResponseWriter, r *http.Reques
 	}
 }
 
+// GetAll godoc
+// @Summary Get all products
+// @Description Retrieve all products with optional name filter
+// @Tags Products
+// @Produce json
+// @Param name query string false "Product name filter"
+// @Success 200 {array} models.Product "List of products"
+// @Failure 500 {string} string "Internal server error"
+// @Router /produk [get]
 func (h *ProductHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	// Ambil query parameter "name" dari URL
 	// Contoh: /api/produk?name=indom → name = "indom"
@@ -59,6 +68,16 @@ func (h *ProductHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(products)
 }
 
+// Create godoc
+// @Summary Create a new product
+// @Description Add a new product to inventory
+// @Tags Products
+// @Accept json
+// @Produce json
+// @Param product body models.Product true "Product data"
+// @Success 201 {object} models.Product "Product created"
+// @Failure 400 {string} string "Bad request"
+// @Router /produk [post]
 func (h *ProductHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var product models.Product
 	err := json.NewDecoder(r.Body).Decode(&product)
@@ -78,6 +97,16 @@ func (h *ProductHandler) Create(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(product)
 }
 
+// GetByID godoc
+// @Summary Get product by ID
+// @Description Retrieve a specific product by its ID
+// @Tags Products
+// @Produce json
+// @Param id path int true "Product ID"
+// @Success 200 {object} models.Product "Product found"
+// @Failure 400 {string} string "Invalid ID"
+// @Failure 404 {string} string "Product not found"
+// @Router /produk/{id} [get]
 func (h *ProductHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/produk/")
 	id, err := strconv.Atoi(idStr)
@@ -96,6 +125,18 @@ func (h *ProductHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(product)
 }
 
+// Update godoc
+// @Summary Update a product
+// @Description Update product information (requires API key)
+// @Tags Products
+// @Accept json
+// @Produce json
+// @Param id path int true "Product ID"
+// @Param product body models.Product true "Updated product data"
+// @Success 200 {object} models.Product "Product updated"
+// @Failure 400 {string} string "Bad request"
+// @Router /produk/{id} [put]
+// @Security ApiKeyAuth
 func (h *ProductHandler) Update(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/produk/")
 	id, err := strconv.Atoi(idStr)
@@ -122,6 +163,17 @@ func (h *ProductHandler) Update(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(product)
 }
 
+// Delete godoc
+// @Summary Delete a product
+// @Description Remove a product from inventory (requires API key)
+// @Tags Products
+// @Produce json
+// @Param id path int true "Product ID"
+// @Success 200 {object} map[string]string "Deletion success message"
+// @Failure 400 {string} string "Invalid ID"
+// @Failure 500 {string} string "Internal server error"
+// @Router /produk/{id} [delete]
+// @Security ApiKeyAuth
 func (h *ProductHandler) Delete(w http.ResponseWriter, r *http.Request) {
 	idStr := strings.TrimPrefix(r.URL.Path, "/api/produk/")
 	id, err := strconv.Atoi(idStr)

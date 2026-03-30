@@ -24,6 +24,18 @@ func (h *TransactionHandler) HandleCheckout(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+// Checkout godoc
+// @Summary Process checkout
+// @Description Create a new transaction from checkout items (requires API key)
+// @Tags Transactions
+// @Accept json
+// @Produce json
+// @Param request body models.CheckoutRequest true "Checkout items"
+// @Success 201 {object} models.Transaction "Transaction created"
+// @Failure 400 {string} string "Bad request or empty items"
+// @Failure 500 {string} string "Internal server error"
+// @Router /checkout [post]
+// @Security ApiKeyAuth
 func (h *TransactionHandler) Checkout(w http.ResponseWriter, r *http.Request) {
 	// Baca list item dari request body
 	var req models.CheckoutRequest

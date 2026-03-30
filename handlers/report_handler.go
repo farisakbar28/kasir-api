@@ -15,6 +15,17 @@ func NewReportHandler(service *services.ReportService) *ReportHandler {
 	return &ReportHandler{service: service}
 }
 
+// HandleHariIni godoc
+// @Summary Get sales report
+// @Description Get sales report for today or specific date range
+// @Tags Reports
+// @Produce json
+// @Param start_date query string false "Start date (format: 2026-01-01)"
+// @Param end_date query string false "End date (format: 2026-01-01)"
+// @Success 200 {object} map[string]interface{} "Sales report summary"
+// @Failure 400 {string} string "Bad request or invalid date format"
+// @Failure 500 {string} string "Internal server error"
+// @Router /report/hari-ini [get]
 func (h *ReportHandler) HandleHariIni(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)

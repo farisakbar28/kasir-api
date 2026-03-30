@@ -13,8 +13,23 @@ import (
 	"kasir-api/repositories"
 	"kasir-api/services"
 
+	_ "kasir-api/docs"
+
 	"github.com/spf13/viper"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
+
+// @title Kasir API Documentation
+// @version 1.0
+// @description API untuk sistem manajemen kasir/penjualan
+// @host localhost:8080
+// @basePath /api
+// @schemes http https
+//
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name X-API-Key
+// @description API Key untuk autentikasi
 
 type Config struct {
 	Port   string `mapstructure:"PORT"`
@@ -128,6 +143,12 @@ func main() {
 			),
 		),
 	)
+
+	// ── Swagger UI ────────────────────────────────────────
+	// Akses dokumentasi API di http://localhost:8080/swagger/index.html
+	http.HandleFunc("/swagger/", httpSwagger.Handler(
+		httpSwagger.URL("http://localhost:8080/swagger/doc.json"),
+	))
 
 	// ── 6. Start server ───────────────────────────────────
 	addr := "0.0.0.0:" + config.Port
